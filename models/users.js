@@ -13,16 +13,22 @@ const userSchema = new mongoose.Schema(
 	    },
 	    email: {
 	        type: String,
-	        required: true
+	        required: true,
+	        unique: true
 	    },
 	    username: {
+	        type: String,
+	        required: false,
+	        unique: true
+	    },
+	    ticketId: {
 	        type: String,
 	        required: true,
 	        unique: true
 	    },
 	    password: {
 	        type: String,
-	        required: true
+	        required: false
 	    },
 	    achievements: {
 	        type: [{
@@ -31,19 +37,12 @@ const userSchema = new mongoose.Schema(
 	        }],
 	        default: []
 	    },
-	    // achievements: {
-	    //     type: [{
-	    //         uuid: String,
-	    //         acquired: {
-	    //             type: Date,
-	    //             default: Date.now
-	    //         }
-	    //     }],
-	    //     default: []
-	    // },
-	    dinner: {
-	    	type: String,
-	    	required: false
+	    events: {
+	        type: [{
+	            type: mongoose.Schema.Types.ObjectId,
+	            ref: 'Events'
+	        }],
+	        default: []
 	    },
 	    cv: {
 	    	type: String,
@@ -69,6 +68,10 @@ userSchema.methods.comparePassword = async function(candidatePassword, next) {
     } catch(err) {
         return next(err);
     }
+}
+
+userSchema.methods.isPasswordSet = function() {
+    return this.password != undefined;
 }
 
 const Users = mongoose.model("User", userSchema);

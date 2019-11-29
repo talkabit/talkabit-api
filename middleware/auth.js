@@ -5,6 +5,14 @@ exports.loginRequired = function (req, res, next) {
 
     try {
 
+
+        if(req.headers.authorization == undefined)
+            return next({
+                status: 401,
+                message: "Token required"
+            });
+
+
         const token = req.headers.authorization.split(" ")[1];
         jwt.verify(token, process.env.SECRET_KEY, function (err, decoded) {
             if (decoded) {
@@ -14,7 +22,7 @@ exports.loginRequired = function (req, res, next) {
             else {
                 return next({
                     status: 401,
-                    message: "Please log in first."
+                    message: "Please log in first"
                 });
             }
         });
@@ -28,15 +36,34 @@ exports.loginRequired = function (req, res, next) {
 
 };
 
-exports.adminLogin = async function(req, res, next){
-    const password = req.body.password;
-    const isMatch = await bcrypt.compare(candidatePassword, this.password);
+exports.adminLoginRequired = async function(req, res, next){
+    try {
 
-    if(isMatch)
-        return next();
-    else
+        if(req.headers.authorization == undefined)
+            return next({
+                status: 401,
+                message: "Token required"
+            });
+
+        const token = req.headers.authorization.split(" ")[1];
+        jwt.verify(token, process.env.SECRET_KEY, function (err, decoded) {
+            if (decoded 
+                && decoded.username == process.env.ADMIN_USERNAME 
+                && decoded.admin)
+                    return next();
+            else {
+                return next({
+                    status: 401,
+                    message: "Please log in first"
+                });
+            }
+        });
+
+    } catch (err) {
+        console.log(err);
         return next({
             status: 401,
-            message: "Unauthorized"
-        })
+            message: "An error occurred"
+        });
+    }
 }

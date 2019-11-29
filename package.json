@@ -1,7 +1,7 @@
 {
   "name": "api",
   "version": "1.0.0",
-  "description": "Home Security Server",
+  "description": "Talk a bit API",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -11,11 +11,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@hapi/joi": "^16.1.8",
+    "axios": "^0.19.0",
     "bcrypt": "^3.0.6",
     "body-parser": "^1.18.3",
     "cors": "^2.8.5",
     "dotenv": "^7.0.0",
     "express": "^4.16.4",
+    "express-joi-validation": "^4.0.3",
+    "express-validation": "^1.0.3",
+    "hash.js": "^1.1.7",
     "http": "0.0.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.7.5",

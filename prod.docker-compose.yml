@@ -2,6 +2,12 @@ version: "3"
 
 services:
 
+  api:
+    build: .
+    restart: always
+    ports: 
+      - 3000:3000
+
   mongo:
     image: mongo:3.6.12
     restart: always
@@ -10,7 +16,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: admin
     ports:
-      - "27017:27017"
+      - 27017:27017
     volumes:
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
 

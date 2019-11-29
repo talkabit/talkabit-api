@@ -20,7 +20,7 @@ const eventsSchema = new mongoose.Schema(
             required: false,
             default: Number.MAX_SAFE_INTEGER
         },
-        users: [ {
+        users: [{
                 type: {
                     type: mongoose.Schema.Types.ObjectId,
                     ref: 'Users'
@@ -30,6 +30,10 @@ const eventsSchema = new mongoose.Schema(
         ]
     }
 );
+
+eventsSchema.methods.isFull = function() {
+    return user.length == limit;
+}
 
 const Events = mongoose.model("Events", eventsSchema);
 
