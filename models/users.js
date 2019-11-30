@@ -16,13 +16,8 @@ const userSchema = new mongoose.Schema(
 	        required: true,
 	        unique: true
 	    },
-	    username: {
-	        type: String,
-	        required: false,
-	        unique: true
-	    },
-	    ticketId: {
-	        type: String,
+	    orderId: {
+	        type: Number,
 	        required: true,
 	        unique: true
 	    },
@@ -59,14 +54,13 @@ const userSchema = new mongoose.Schema(
 );
 
 
-userSchema.methods.comparePassword = async function(candidatePassword, next) {
+userSchema.methods.comparePassword = async function(candidatePassword) {
     try {
-
         const isMatch = await bcrypt.compare(candidatePassword, this.password);
         return isMatch;
 
     } catch(err) {
-        return next(err);
+        return false;
     }
 }
 
@@ -74,6 +68,6 @@ userSchema.methods.isPasswordSet = function() {
     return this.password != undefined;
 }
 
-const Users = mongoose.model("User", userSchema);
+const Users = mongoose.model("Users", userSchema);
 
 module.exports = Users;

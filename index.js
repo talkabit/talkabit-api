@@ -6,11 +6,10 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const errorHandler = require("./controllers/error");
 const db = require("./models");
-const { loginRequired } = require("./middleware/auth");
 const userRoutes = require("./routes/users");
 const eventsRoutes = require("./routes/events");
 const achievementsRoutes = require("./routes/achievements");
-const { adminLoginRequired } = require("./middleware/auth");
+const eventBriteRoutes = require("./routes/eventbrite")
 
 const PORT = process.env.PORT || 3000;
 
@@ -30,9 +29,9 @@ async function init(){
 	app.use(bodyParser.json());
 
 	app.use("/api/users", userRoutes);
-	app.use("/api/achievements", adminLoginRequired, achievementsRoutes);
-	// app.use("/api/achievements", achievementsRoutes);
-	app.use("/api/events", adminLoginRequired, eventsRoutes);
+	app.use("/api/achievements", achievementsRoutes);
+	app.use("/api/events", eventsRoutes);
+	app.use("/api/eventbrite", eventBriteRoutes);
 
 	app.use(function (req, res, next) {
 	    let err = new Error("Not Found");

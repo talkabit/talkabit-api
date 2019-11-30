@@ -16,14 +16,16 @@ const achievementsSchema = new mongoose.Schema(
             required: false,
             unique: true
         },
-        users: [
-            {
-                type: {
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: 'Users',
-                }
-            }
-        ]
+        users: {
+            type: [{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Users'
+            }],
+            default: []
+        }
+    },
+    {
+        timestamps: true
     }
 );
 

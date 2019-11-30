@@ -1,13 +1,19 @@
-FROM node:8.16.2-alpine
+FROM node:12-alpine
 
-WORKDIR /app
+RUN mkdir -p /usr/src/app
 
-COPY . ./
+RUN apk update && apk add python make g++
+
+RUN npm install -g node-gyp
+
+WORKDIR /usr/src/app
 
 COPY .env.prod .env
 
-RUN npm install --production
+COPY package*.json ./
 
-EXPOSE 3000
+RUN npm install
 
-CMD npm start
+COPY . .
+
+CMD npm run start

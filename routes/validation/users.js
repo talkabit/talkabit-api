@@ -12,21 +12,14 @@ module.exports = {
 		})
 	},
 
-	create: {
-		body: Joi.object({
-			eventBriteUrl: Joi.string().required()
-		})
-	},
-
 	register: {
 		body: Joi.object({
 			email: Joi.string().email().required(),
 			name: Joi.string().required(),
-			username: Joi.string().required(),
-			cv: Joi.string().required(),
+			cv: Joi.string().uri(),
 			//Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character
 			password: Joi.string().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/).required(),
-			ticketId: Joi.string().required()
+			orderId: Joi.number().required()
 		})
 	},
 
@@ -45,17 +38,18 @@ module.exports = {
 		})
 	},
 
-
 	update: {
 		params: Joi.object({
-			id: Joi.number().integer().min(1).required()
+			userUuid: Joi.string().guid({
+				    version: [
+				        'uuidv1'
+				    ]
+				}).required()
 		}),
 
 		body: Joi.object({
-			email: Joi.string().email(),
-			password: Joi.string().min(5),
-			admin: Joi.boolean(),
-		}).or('email','password','admin')
+			banned: Joi.boolean()
+		}).or('banned')
 	},
 
 	addAchievement: {

@@ -2,38 +2,40 @@ const db = require("../models");
 const uuidv1 = require('uuid/v1');
 const bcrypt = require("bcrypt");
 const hash = require('hash.js')
-const axios = require('axios');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 const jwtOptions = {
     expiresIn: "1h"
 }
 
-const userSelectFilter = "-__v -_id -password";
+const userSelectFilter = "-__v -_id -password -banned -achievements.__v -achievements._id -achievements.users -events._id -events.__v -events.users";
 
 exports.createUser = async function (req, res, next) {
 
     try {
 
-        // const response = await axios.get(
-        //         req.body.eventBriteUrl, 
-        //         {
-        //             headers: {
-        //                 Authorization: 'Bearer ',
-        //                 'Content-Type': 'application/json'
-        //             }
-        //         }
-        //     );
+        req.body.uuid = uuidv1();
 
-        // console.log(response.data);
+        const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
 
-        // resp = uuidv1();
-        // const user = await db.Users.create(req.body);
+        req.body.password = hashedPassword;
+        const user = await db.Users.create(req.body);
+        const { uuid, name } = user;
 
-        return res.status(201).json({});
+        const token = jwt.sign({
+            uuid,
+            name
+        }, process.env.SECRET_KEY, jwtOptions);
+
+        return res.status(200).json({
+            uuid, name, token
+        });
         
     } catch (err) {
 
+        if (err.code === 11000) {
+            err.message = "Sorry, that nickname is taken";
+        }
         return next({
             status: 400,
             message: err.message
@@ -48,56 +50,46 @@ exports.registerUser = async function (req, res, next) {
 
         const user = await db.Users.findOne({
                     email: req.body.email,
-                    ticketId: req.body.ticketId
+                    orderId: req.body.orderId
                 });
 
         if(user == undefined)
             return next({
-                status: 400,
-                message: "Missing user"
+                status: 401,
+                message: "Invalid email or order id"
             });
 
         if(user.isPasswordSet())
             return next({
-                status: 400,
+                status: 403,
                 message: "Already registered"
             });
 
         const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
 
-        req.body.password = hashedPassword;
         user.password = hashedPassword;
         user.name = req.body.name;
-        user.username = username;
 
-        user.save(function (err) {
-            if (err) return console.log(err);
-        });
+        await user.save();
 
-        const { uuid } = user;
+        const { uuid, email } = user;
 
         const token = jwt.sign({
             uuid,
-            name
+            email
         }, process.env.SECRET_KEY, jwtOptions);
 
         return res.status(200).json({
-            uuid, name, token
+            uuid, email, token
         });
         
     } catch (err) {
-
-        if (err.code === 11000) {
-            err.message = "Sorry, that username is taken";
-        }
         return next({
-            status: 400,
+            status: 500,
             message: err.message
         });
-
     }
 }
-
 
 exports.loginUser = async function (req, res, next) {
 
@@ -108,7 +100,16 @@ exports.loginUser = async function (req, res, next) {
         });
         
         if(user == undefined)
-            throw "Invalid credentials";
+        	return next({
+                status: 400,
+                message: "Invalid credentials"
+            });
+
+        if(user.banned)
+            return next({
+                status: 403,
+                message: "Forbidden"
+            });
 
         const { uuid, name, email } = user;
         const isMatch = await user.comparePassword(req.body.password);
@@ -123,18 +124,17 @@ exports.loginUser = async function (req, res, next) {
                 uuid, name, email, token
             });
         }
-        else {
+        else
             return next({
                 status: 400,
                 message: "Invalid credentials"
             });
-        }
 
     } catch (err) {
         console.log(err);
         return next({
-            status: 400,
-            message: "Invalid credentials"
+            status: 500,
+            message: err.message
         });
     }
 }
@@ -157,14 +157,11 @@ exports.loginAdmin = async function (req, res, next) {
                 token
             });
         }
-        else {
+        else
             return next({
                 status: 400,
                 message: "Invalid credentials"
             });
-        }
-
-        return res.status(200).json({});s
 
     } catch (err) {
         console.log(err);
@@ -180,6 +177,7 @@ exports.getUsers = async function (req, res, next) {
     try{
         const user = await db.Users.find()
                 .populate('achievements')
+                .populate('events')
                 .select(userSelectFilter);
         
         return res.status(200).json(user);
@@ -196,6 +194,7 @@ exports.getUser = async function (req, res, next) {
                     uuid: req.params.userUuid
                 })
                 .populate('achievements')
+                .populate('events')
                 .select(userSelectFilter);
         
         return res.status(200).json(user);
@@ -233,18 +232,15 @@ exports.addAchievementToUser = async function (req, res, next) {
             }); 
         }
 
-        user.achievements.push(achievement._id);
-        achievement.users.push(user._id);
+        if(!user.achievements.includes(achievement._id)){
+            user.achievements.push(achievement._id);
+	        achievement.users.push(user._id);
 
-        user.save(function (err) {
-            if (err) return console.log(err);
-        });
-
-        achievement.save(function (err){
-            if(err) console.log(err);
-        });
-
-        return res.status(200).json(user);
+	        await user.save();
+	        await achievement.save();
+        }
+        
+        return res.sendStatus(200);
     }
     catch(err){
         console.log(err);
@@ -264,7 +260,7 @@ exports.addEventToUser = async function (req, res, next) {
 
         if(user == undefined || event == undefined){
             return next({
-                status: 401,
+                status: 400,
                 message: "Invalid arguments"
             }); 
         }
@@ -276,18 +272,15 @@ exports.addEventToUser = async function (req, res, next) {
             });
         }
 
-        user.events.push(event._id);
-        event.users.push(user._id);
+        if(!user.events.includes(event._id)){
+            user.events.push(event._id);
+            event.users.push(user._id);
 
-        user.save(function (err) {
-            if (err) return console.log(err);
-        });
+            await user.save();
+            await event.save();
+        }
 
-        event.save(function (err){
-            if(err) return console.log(err);
-        });
-
-        return res.status(200).json(user);
+        return res.sendStatus(200);
     }
     catch(err){
         console.log(err);

@@ -6,7 +6,7 @@ module.exports = {
 		body: Joi.object({
 			type: Joi.string().required(),
 			name: Joi.string().required(),
-			limit: Joi.number()
+			limit: Joi.number().min(1)
 		})
 	}
 }

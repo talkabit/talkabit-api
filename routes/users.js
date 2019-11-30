@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const validator = require('express-joi-validation').createValidator({});
 const { createUser, registerUser, loginUser, loginAdmin, updateUser, getUser, getUsers, addAchievementToUser, addEventToUser } = require("../controllers/users");
-const { loginRequired, adminLoginRequired } = require("../middleware/auth");
+const { loginRequired, adminLoginRequired, ensureSelfOrAdmin } = require("../middleware/auth");
 const usersValidation = require('./validation/users');
 
 router.get(
@@ -11,19 +11,19 @@ router.get(
 	getUsers
 );
 
-
 router.get(
 	"/:userUuid", 
 	validator.params(usersValidation.get.params),
-	loginRequired, 
+	loginRequired,
+	ensureSelfOrAdmin,
 	getUser
 );
 
-router.post(
-	"/", 
-	validator.body(usersValidation.create.body),
-	createUser
-);
+// router.post(
+// 	"/", 
+// 	validator.body(usersValidation.create.body),
+// 	createUser
+// );
 
 router.post(
 	"/register",
@@ -45,6 +45,9 @@ router.post(
 
 router.put(
 	"/:userUuid",
+	validator.params(usersValidation.update.params),
+	validator.body(usersValidation.update.body),
+	adminLoginRequired,
 	updateUser
 );
 
@@ -52,6 +55,8 @@ router.post(
 	"/:userUuid/achievements",
 	validator.params(usersValidation.addAchievement.params),
 	validator.body(usersValidation.addAchievement.body),
+	loginRequired,
+	ensureSelfOrAdmin,
 	addAchievementToUser
 );
 
@@ -59,6 +64,8 @@ router.post(
 	"/:userUuid/events",
 	validator.params(usersValidation.addEvent.params),
 	validator.body(usersValidation.addEvent.body),
+	loginRequired,
+	ensureSelfOrAdmin,
 	addEventToUser
 );
 

@@ -9,7 +9,7 @@ mongoose.connect(DB_CONNECTION, {
     useNewUrlParser: true
 });
 
+module.exports.Keys = require("./keys");
 module.exports.Users = require("./users");
 module.exports.Achievements = require("./achievements");
 module.exports.Events = require("./events");
-module.exports.Keys = require("./keys");
