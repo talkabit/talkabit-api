@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const { loginRequired } = require("../middleware/auth");
+const { createUser, registerUser, loginUser, loginAdmin, updateUser, getUser, getUsers, addAchievementToUser, addEventToUser } = require("../controllers/users");
+const { loginRequired, adminLoginRequired, ensureSelfOrAdmin } = require("../middleware/auth");
 const { navbar } = require("../controllers/html");
 
 router.get(
@@ -8,3 +9,5 @@ router.get(
     loginRequired,
     navbar
 );
+
+module.exports = router;

@@ -1,3 +1,3 @@
-function navbar(req,res,next){
+exports.navbar = (req,res,next) => {
     console.log("I am here");
 }
