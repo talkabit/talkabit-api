@@ -4,7 +4,8 @@ module.exports = {
 
 	create: {
 		body: Joi.object({
-			apiUrl: Joi.string().uri().required()
+			api_url: Joi.string().uri().required(),
+			config: Joi.any().allow('config')
 		})
 	},
 }

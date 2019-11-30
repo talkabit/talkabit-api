@@ -6,14 +6,11 @@ exports.addUser = async function (req, res, next) {
     try {
 
         const response = await axios.get(
-                req.body.apiUrl,
-                {
-                    headers: {
-                        Authorization: 'Bearer '+process.env.EVENTBRITE_KEY,
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
+            `${req.body.apiUrl}?token=${process.env.EVENTBRITE_KEY}`
+        ).catch(( {response} ) => {
+            console.log(response.data)
+            res.status(response.data.status).send(response.data)
+        });
 
         console.log(response.data);
 
@@ -27,7 +24,7 @@ exports.addUser = async function (req, res, next) {
         const user = await db.Users.create(userInfo);
 
         return res.status(201).json(user);
-        
+
     } catch (err) {
 
         if (err.code === 11000) {
@@ -39,5 +36,5 @@ exports.addUser = async function (req, res, next) {
             message: err.message
         });
     }
-    
+
 }
