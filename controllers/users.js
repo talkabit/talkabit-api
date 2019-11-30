@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const jwtOptions = {
     expiresIn: "1h"
 }
+const ms = require('ms');
 
 const userSelectFilter = "-__v -_id -password -banned -achievements.__v -achievements._id -achievements.users -events._id -events.__v -events.users";
 
@@ -111,7 +112,7 @@ exports.loginUser = async function (req, res, next) {
                 message: "Forbidden"
             });
 
-        const { uuid, name, email } = user;
+        const { uuid, name } = user;
         const isMatch = await user.comparePassword(req.body.password);
 
         if (isMatch) {
@@ -120,8 +121,11 @@ exports.loginUser = async function (req, res, next) {
                 uuid, name
             }, process.env.SECRET_KEY);
 
+            const expiresIn = new Date(Date.now()+ms(jwtOptions.expiresIn));
+
             return res.status(200).json({
-                uuid, name, email, token
+                uuid, token, expiresIn
+                
             });
         }
         else
@@ -153,8 +157,10 @@ exports.loginAdmin = async function (req, res, next) {
                 admin: true
             }, process.env.SECRET_KEY);
 
+            const expiresIn = new Date(Date.now()+ms(jwtOptions.expiresIn));
+
             return res.status(200).json({
-                token
+                token, expiresIn
             });
         }
         else
