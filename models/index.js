@@ -6,7 +6,8 @@ mongoose.Promise = Promise;
 
 const DB_CONNECTION = process.env.DB_CONNECTION || "mongodb://localhost:27017/tab";
 mongoose.connect(DB_CONNECTION, {
-    useNewUrlParser: true
+    useNewUrlParser: true,
+    useUnifiedTopology: true
 });
 
 module.exports.Keys = require("./keys");

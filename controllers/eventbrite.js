@@ -4,15 +4,9 @@ const uuidv1 = require('uuid/v1');
 
 exports.addUser = async function (req, res, next) {
     try {
-
         const response = await axios.get(
-            `${req.body.apiUrl}?token=${process.env.EVENTBRITE_KEY}`
-        ).catch(( {response} ) => {
-            console.log(response.data)
-            res.status(response.data.status).send(response.data)
-        });
-
-        console.log(response.data);
+            `${req.body.api_url}?token=${process.env.EVENTBRITE_KEY}`
+        )
 
         let userInfo = {
             email: response.data.email,
@@ -21,10 +15,10 @@ exports.addUser = async function (req, res, next) {
             uuid: uuidv1()
         }
 
+        console.log(userInfo);
+
         const user = await db.Users.create(userInfo);
-
         return res.status(201).json(user);
-
     } catch (err) {
 
         if (err.code === 11000) {
@@ -36,5 +30,4 @@ exports.addUser = async function (req, res, next) {
             message: err.message
         });
     }
-
 }
