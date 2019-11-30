@@ -9,7 +9,8 @@ const db = require("./models");
 const userRoutes = require("./routes/users");
 const eventsRoutes = require("./routes/events");
 const achievementsRoutes = require("./routes/achievements");
-const eventBriteRoutes = require("./routes/eventbrite")
+const eventBriteRoutes = require("./routes/eventbrite");
+const htmlRoutes = require("./routes/html");
 
 const PORT = process.env.PORT || 3000;
 
@@ -32,6 +33,7 @@ async function init(){
 	app.use("/api/achievements", achievementsRoutes);
 	app.use("/api/events", eventsRoutes);
 	app.use("/api/eventbrite", eventBriteRoutes);
+	app.use("/api/html", htmlRoutes);
 
 	app.use(function (req, res, next) {
 	    let err = new Error("Not Found");
