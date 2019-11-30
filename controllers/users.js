@@ -80,8 +80,10 @@ exports.registerUser = async function (req, res, next) {
             email
         }, process.env.SECRET_KEY, jwtOptions);
 
+        const expiresAt = new Date(Date.now()+ms(jwtOptions.expiresIn));
+
         return res.status(200).json({
-            uuid, email, token
+            uuid, token, expiresAt
         });
         
     } catch (err) {
@@ -121,10 +123,10 @@ exports.loginUser = async function (req, res, next) {
                 uuid, name
             }, process.env.SECRET_KEY);
 
-            const expiresIn = new Date(Date.now()+ms(jwtOptions.expiresIn));
+            const expiresAt = new Date(Date.now()+ms(jwtOptions.expiresIn));
 
             return res.status(200).json({
-                uuid, token, expiresIn
+                uuid, token, expiresAt
                 
             });
         }
@@ -157,10 +159,10 @@ exports.loginAdmin = async function (req, res, next) {
                 admin: true
             }, process.env.SECRET_KEY);
 
-            const expiresIn = new Date(Date.now()+ms(jwtOptions.expiresIn));
+            const expiresAt = new Date(Date.now()+ms(jwtOptions.expiresIn));
 
             return res.status(200).json({
-                token, expiresIn
+                token, expiresAt
             });
         }
         else
