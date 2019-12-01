@@ -1,7 +1,7 @@
 exports.navbar = (req,res,next) => {
-    if(res.locals.userAuthed){
+    if(req.user){
         //Return html with profile link
-        res.send();
+        res.send(req.user);
     }else{
         //Return html with login link
         res.send();
