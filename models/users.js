@@ -46,7 +46,12 @@ const userSchema = new mongoose.Schema(
 	    banned: {
 	    	type: Boolean,
 	    	default: false
-	    }
+		},
+		qr: {
+			type:String,
+			default: null,
+			required: false
+		}
     },
     {
         timestamps: true

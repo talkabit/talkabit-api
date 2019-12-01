@@ -15,7 +15,7 @@ module.exports = {
 	register: {
 		body: Joi.object({
 			email: Joi.string().email().required(),
-			name: Joi.string().required(),
+			name: Joi.string(),
 			cv: Joi.string().uri(),
 			//Minimum eight characters, at least one uppercase letter, one lowercase letter, one number
 			password: Joi.string().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/).required(),

@@ -8,6 +8,7 @@ const jwtOptions = {
     expiresIn: "1h"
 }
 const ms = require('ms');
+const QRCode = require('qrcode');
 
 const userSelectFilter = "-__v -_id -password -banned -achievements.__v -achievements._id -achievements.users -events._id -events.__v -events.users";
 
@@ -67,14 +68,14 @@ exports.registerUser = async function (req, res, next) {
             });
 
         const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
-
         user.password = hashedPassword;
-        user.name = req.body.name;
-
-        await user.save();
+        QRCode.toString(user.uuid, (err, string) => {
+            if (err) throw err
+            user.qr = string;
+            user.save();
+          })
 
         const { uuid, email } = user;
-
         const token = jwt.sign({
             uuid,
             email
