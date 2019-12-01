@@ -6,13 +6,13 @@ const { loginRequired, adminLoginRequired, ensureSelfOrAdmin } = require("../mid
 const usersValidation = require('./validation/users');
 
 router.get(
-	"/", 
+	"/",
 	adminLoginRequired,
 	getUsers
 );
 
 router.get(
-	"/:userUuid", 
+	"/:userUuid",
 	validator.params(usersValidation.get.params),
 	loginRequired,
 	ensureSelfOrAdmin,
