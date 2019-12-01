@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const { loginRequired } = require("../middleware/auth");
-const { navbar } = require("../controllers/html");
+const { getUser } = require("../controllers/html");
 
 router.get(
-    "/navbar",
+    "/getuser",
     loginRequired,
-    navbar
+    getUser
 );
 
 module.exports = router;
