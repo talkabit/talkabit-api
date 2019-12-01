@@ -13,6 +13,7 @@ exports.getUser = (req, res, next) => {
               <a class="dropdown-item disabled" href="#">Profile</a>
               <a class="dropdown-item disabled" href="#">Events</a>
               <a class="dropdown-item disabled" href="#">Achivements</a>
+              <a class="dropdown-item" id="logout-button" href="#">Logout</a>
           </div>
         </li>`
     })
