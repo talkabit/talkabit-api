@@ -1,6 +1,7 @@
 exports.getUser = (req, res, next) => {
   if (req.user) {
     return res.send({
+      "user": req.user,
       "html":
         `<li class="nav-item dropdown" id="account">
           <a class="nav-link py-0 dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown"
@@ -17,6 +18,7 @@ exports.getUser = (req, res, next) => {
     })
   } else {
     return res.send({
+      "user": null,
       "html":
         `<li class="nav-item dropdown" id="account">
           <a class="nav-link py-0 dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown"
