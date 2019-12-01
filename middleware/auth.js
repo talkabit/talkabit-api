@@ -4,17 +4,28 @@ const jwt = require("jsonwebtoken");
 
 exports.loginRequired = function (req, res, next) {
     try {
-        if(req.headers.authorization == undefined)
+        if (req.headers.authorization == undefined)
             return next({
                 status: 400,
                 message: "Authentication token required"
             });
 
         const token = req.headers.authorization;
-        jwt.verify(token, process.env.SECRET_KEY, function (err, decoded) {
+        jwt.verify(token, process.env.SECRET_KEY, async function (err, decoded) {
             if (decoded) {
-                req.user = decoded;
-                return next();
+                let user = await db.Users.findOne({
+                    email: decoded.email,
+                    uuid: decoded.uuid
+                });
+                if (user) {
+                    req.user = user;
+                    return next();
+                } else {
+                    return next({
+                        status: 404,
+                        message: "Invalid authentication token"
+                    });
+                }
             }
             else {
                 return next({
@@ -31,10 +42,10 @@ exports.loginRequired = function (req, res, next) {
     }
 };
 
-exports.adminLoginRequired = async function(req, res, next){
+exports.adminLoginRequired = async function (req, res, next) {
     try {
 
-        if(req.headers.authorization == undefined)
+        if (req.headers.authorization == undefined)
             return next({
                 status: 400,
                 message: "Authentication token required"
@@ -42,12 +53,12 @@ exports.adminLoginRequired = async function(req, res, next){
 
         const token = req.headers.authorization;
         jwt.verify(token, process.env.SECRET_KEY, function (err, decoded) {
-            if (decoded 
-                && decoded.username == process.env.ADMIN_USERNAME 
-                && decoded.admin){
-                    console.log("DECODED "+decoded);
-                    req.user = decoded;
-                    return next();
+            if (decoded
+                && decoded.username == process.env.ADMIN_USERNAME
+                && decoded.admin) {
+                console.log("DECODED " + decoded);
+                req.user = decoded;
+                return next();
             }
             else {
                 return next({
@@ -67,19 +78,19 @@ exports.adminLoginRequired = async function(req, res, next){
 }
 
 
-exports.ensureSelfOrAdmin = async function(req, res, next){
-    
-    // Check if request author non-admin is accessing his details
-    if(!req.user.admin){
-        const author = await db.Users.findOne({
-                uuid: req.user.uuid
-            })
+exports.ensureSelfOrAdmin = async function (req, res, next) {
 
-        if(author.uuid != req.params.userUuid)
+    // Check if request author non-admin is accessing his details
+    if (!req.user.admin) {
+        const author = await db.Users.findOne({
+            uuid: req.user.uuid
+        })
+
+        if (author.uuid != req.params.userUuid)
             return next({
                 status: 403,
                 message: "Forbidden"
-            }); 
+            });
     }
 
     return next();
