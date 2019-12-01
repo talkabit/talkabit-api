@@ -49,7 +49,6 @@ exports.createUser = async function (req, res, next) {
 exports.registerUser = async function (req, res, next) {
 
     try {
-
         const user = await db.Users.findOne({
                     email: req.body.email,
                     orderId: req.body.orderId
@@ -115,13 +114,13 @@ exports.loginUser = async function (req, res, next) {
                 message: "Forbidden"
             });
 
-        const { uuid, name } = user;
+        const { uuid, email } = user;
         const isMatch = await user.comparePassword(req.body.password);
 
         if (isMatch) {
 
             const token = jwt.sign({
-                uuid, name
+                uuid, email
             }, process.env.SECRET_KEY);
 
             const expiresAt = new Date(Date.now()+ms(jwtOptions.expiresIn));
