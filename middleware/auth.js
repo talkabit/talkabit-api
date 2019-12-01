@@ -3,18 +3,14 @@ const db = require("../models");
 const jwt = require("jsonwebtoken");
 
 exports.loginRequired = function (req, res, next) {
-
     try {
-
         if(req.headers.authorization == undefined)
             return next({
                 status: 400,
                 message: "Authentication token required"
             });
 
-
-        const token = req.headers.authorization//.split(" ")[1];
-        console.log(token)
+        const token = req.headers.authorization;
         jwt.verify(token, process.env.SECRET_KEY, function (err, decoded) {
             if (decoded) {
                 req.user = decoded;
@@ -27,14 +23,12 @@ exports.loginRequired = function (req, res, next) {
                 });
             }
         });
-
     } catch (err) {
         return next({
             status: 500,
             message: "An error occurred"
         });
     }
-
 };
 
 exports.adminLoginRequired = async function(req, res, next){
@@ -46,7 +40,7 @@ exports.adminLoginRequired = async function(req, res, next){
                 message: "Authentication token required"
             });
 
-        const token = req.headers.authorization.split(" ")[1];
+        const token = req.headers.authorization;
         jwt.verify(token, process.env.SECRET_KEY, function (err, decoded) {
             if (decoded 
                 && decoded.username == process.env.ADMIN_USERNAME 
