@@ -251,7 +251,10 @@ exports.addAchievementToUser = async function (req, res, next) {
         return res.sendStatus(200);
     }
     catch(err){
-        console.log(err);
+        return next({
+            status: 500,
+            message: "Error adding achievement"
+        }); 
     }
 }
 
