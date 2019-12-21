@@ -2,6 +2,25 @@ const db = require("../models");
 const axios = require("axios")
 const uuidv1 = require('uuid/v1');
 
+exports.addUserDebug = async function (req, res, next) {
+    try {
+        let userInfo = {
+            email: req.body.email,
+            name: req.body.name,
+            orderId: req.body.id,
+            uuid: uuidv1()
+        }
+
+        const user = await db.Users.create(userInfo);
+        return res.status(201).json(user);
+    }catch(err){
+        return next({
+            status: 500,
+            message: err.message
+        });
+    }
+}
+
 exports.addUser = async function (req, res, next) {
     try {
         const response = await axios.get(

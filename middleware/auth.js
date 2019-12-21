@@ -1,6 +1,7 @@
 require("dotenv");
 const db = require("../models");
 const jwt = require("jsonwebtoken");
+const crypto = require('crypto');
 
 exports.loginRequired = function (req, res, next) {
     try {
@@ -41,6 +42,24 @@ exports.loginRequired = function (req, res, next) {
         });
     }
 };
+
+exports.debugKey = function (req, res, next) {
+    try{
+        if(req.body.debug_key == null || crypto.createHash('sha256').update(req.body.debug_key).digest('base64') != "35Y/8LrkS7gFOzxpAqv+pI68QrkYYGAcm6X6DJwLOXM="){
+            return next({
+                status: 401,
+                message: "Unauthorized (needs debug key - ask devs)"
+            });
+        }else{
+            return next();
+        }
+    }catch (err){
+        return next({
+            status: 401,
+            message: "Unauthorized (needs debug key - ask devs)"
+        });
+    }
+}
 
 exports.adminLoginRequired = async function (req, res, next) {
     try {

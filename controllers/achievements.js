@@ -4,6 +4,11 @@ const uuidv1 = require('uuid/v1');
 const achievementSelectFilter = "-__v -_id -createdAt -updatedAt -users";
 const achievementAdminSelectFilter = "-__v -_id -users.__v -users._id -users.events";
 
+exports.awardAchievement = async function (req, res, next) {
+    console.log("TODO - IMPLEMENT")
+    return res.status(201).json({});
+}
+
 exports.createAchievement = async function (req, res, next) {
     try {
 
