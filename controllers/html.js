@@ -10,8 +10,8 @@ exports.getUser = (req, res, next) => {
             ${req.user.name}
           </a>
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item disabled" href="#">Profile</a>
-              <a class="dropdown-item disabled" href="#">Events</a>
+              <a class="dropdown-item" id="prof-button" href="#">Profile</a>
+              <a class="dropdown-item" id="events-button" href="#">Events</a>
               <a class="dropdown-item disabled" href="#">Achivements</a>
               <a class="dropdown-item" id="logout-button" href="#">Logout</a>
           </div>
