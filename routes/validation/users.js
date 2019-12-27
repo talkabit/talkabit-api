@@ -16,7 +16,7 @@ module.exports = {
 		body: Joi.object({
 			email: Joi.string().email().required(),
 			name: Joi.string(),
-			cv: Joi.string().uri(),
+			cv: Joi.string().regex(/^(https:\/\/github\.com|https:\/\/github.io|https:\/\/drive\.google\.com|https:\/\/www\.linkedin\.com).+/),
 			//Minimum eight characters, at least one uppercase letter, one lowercase letter, one number
 			password: Joi.string().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/).required(),
 			orderId: Joi.number().required()
@@ -48,7 +48,7 @@ module.exports = {
 		}),
 
 		body: Joi.object({
-			cv: Joi.string().uri()
+			cv: Joi.string().regex(/^(https:\/\/github\.com|https:\/\/github.io|https:\/\/drive\.google\.com|https:\/\/www\.linkedin\.com).+/).required()
 		})
 	},
 

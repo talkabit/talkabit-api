@@ -47,7 +47,8 @@ router.put(
 	"/:userUuid",
 	validator.params(usersValidation.update.params),
 	validator.body(usersValidation.update.body),
-	adminLoginRequired,
+	loginRequired,
+	ensureSelfOrAdmin,
 	updateUser
 );
 
