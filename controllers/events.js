@@ -1,8 +1,6 @@
 const db = require("../models");
+const filters = require('./filters');
 const uuidv1 = require('uuid/v1');
-
-const eventSelectFilter = "-__v -_id -createdAt -updatedAt -users";
-const eventAdminSelectFilter = "-__v -_id -users.__v -users._id -users.achievements";
 
 exports.createEvent = async function (req, res, next) {
 	try {
@@ -31,13 +29,16 @@ exports.getEvents = async function (req, res, next) {
 
     if(req.user.admin)
         events = await db.Events.find()
-            .populate('users')
+            .populate({
+                path: 'users',
+                select: filters.adm.userFilter
+            })
             .sort({ createdAt: "desc" })
-            .select(eventAdminSelectFilter);
+            .select(filters.adm.eventFilter);
     else
         events = await db.Events.find()
             .sort({ createdAt: "desc" })
-            .select(eventSelectFilter);
+            .select(filters.usr.eventFilter);
 
     return res.status(200).json(events);
 }

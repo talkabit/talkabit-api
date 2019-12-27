@@ -48,9 +48,11 @@ module.exports = {
 		}),
 
 		body: Joi.object({
-			banned: Joi.boolean()
-		}).or('banned')
+			cv: Joi.string().uri()
+		})
 	},
+
+	
 
 	addAchievement: {
 		params: Joi.object({
@@ -62,11 +64,7 @@ module.exports = {
 		}),
 		
 		body: Joi.object({
-				achievementUuid: Joi.string().guid({
-				    version: [
-				        'uuidv1'
-				    ]
-				}).required()
+				achievementUuid: Joi.string().required()
 			})
 	},
 

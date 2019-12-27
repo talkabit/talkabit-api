@@ -1,20 +1,20 @@
 const express = require("express");
 const router = express.Router({ mergeParams: true });
 const validator = require('express-joi-validation').createValidator({});
-const { createAchievement, getAchievements, getAchievementsByUser } = require("../controllers/achievements");
+const { getAchievements, createAchievement } = require("../controllers/achievements");
 const { loginRequired, adminLoginRequired } = require("../middleware/auth");
 const achievementsValidation = require('./validation/achievements');
 
 router.get(
 	"/",
-	loginRequired,
+	adminLoginRequired,
 	getAchievements
 );
 
 router.post(
 	"/",
 	validator.body(achievementsValidation.create.body),
-	loginRequired,
+	adminLoginRequired,
 	createAchievement
 );
 

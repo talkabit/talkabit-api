@@ -1,4 +1,5 @@
 const db = require("../models");
+const filters = require('./filters');
 const uuidv1 = require('uuid/v1');
 const bcrypt = require("bcrypt");
 const hash = require('hash.js')
@@ -9,8 +10,7 @@ const jwtOptions = {
 }
 const ms = require('ms');
 const QRCode = require('qrcode');
-
-const userSelectFilter = "-__v -_id -password -banned -achievements.__v -achievements._id -achievements.users -events._id -events.__v -events.users";
+const NodeRSA = require('node-rsa');
 
 exports.createUser = async function (req, res, next) {
 
@@ -120,7 +120,7 @@ exports.loginUser = async function (req, res, next) {
         if (isMatch) {
 
             const token = jwt.sign({
-                uuid, email
+                uuid, email, admin: false
             }, process.env.SECRET_KEY);
 
             const expiresAt = new Date(Date.now()+ms(jwtOptions.expiresIn));
@@ -182,11 +182,18 @@ exports.loginAdmin = async function (req, res, next) {
 
 exports.getUsers = async function (req, res, next) {
 
+    const selectFilter = req.user.admin ? "adm" : "usr";
     try{
         const user = await db.Users.find()
-                .populate('achievements')
-                .populate('events')
-                .select(userSelectFilter);
+                .populate({
+                    path: 'achievements',
+                    select: filters[selectFilter].achievementAdminFilter
+                })
+                .populate({
+                    path: 'events',
+                    select: filters[selectFilter].eventAdminFilter
+                })
+                .select(filters[selectFilter].userAdminFilter);
         
         return res.status(200).json(user);
     }
@@ -197,13 +204,21 @@ exports.getUsers = async function (req, res, next) {
 
 exports.getUser = async function (req, res, next) {
 
+    const selectFilter = req.user.admin ? "adm" : "usr";
     try{
         const user = await db.Users.findOne({
                     uuid: req.params.userUuid
                 })
-                .populate('achievements')
-                .populate('events')
-                .select(userSelectFilter);
+                .populate({
+                    path: 'achievements',
+                    select: filters[selectFilter].achievementFilter
+                })
+                .populate({
+                    path: 'events',
+                    select: filters[selectFilter].eventFilter
+                })
+                .select(filters[selectFilter].userFilter);
+
         
         return res.status(200).json(user);
     }
@@ -217,7 +232,8 @@ exports.updateUser = async function (req, res, next) {
      const user = await db.Users.findOneAndUpdate({
                 uuid: req.params.userUuid
             },
-            req.body);
+            req.body, {new: true})
+            .select(`${filters.usr.userFilter} -achievements -events`);
 
     return res.status(200).json(user);
 }
@@ -225,12 +241,31 @@ exports.updateUser = async function (req, res, next) {
 exports.addAchievementToUser = async function (req, res, next) {
 
     try{
-        const user = await db.Users.findOne({
-            uuid: req.params.userUuid
-        });
+
+        let decryptedAchievementUuid = null;
+
+        try{
+            const tabKey = await db.Keys.findOne();
+
+            const key = new NodeRSA(tabKey.public);
+            key.setOptions({
+                encryptionScheme: 'pkcs1',
+            });
+            decryptedAchievementUuid = key.decryptPublic(req.body.achievementUuid).toString();
+        }
+        catch(e){
+            return next({
+                status: 401,
+                message: "Invalid achievement id"
+            }); 
+        }
 
         const achievement = await db.Achievements.findOne({
-            uuid: req.body.achievementUuid
+            uuid: decryptedAchievementUuid
+        });
+
+        const user = await db.Users.findOne({
+            uuid: req.params.userUuid
         });
 
         if(user == undefined || achievement == undefined){
@@ -242,10 +277,12 @@ exports.addAchievementToUser = async function (req, res, next) {
 
         if(!user.achievements.includes(achievement._id)){
             user.achievements.push(achievement._id);
-	        achievement.users.push(user._id);
-
 	        await user.save();
-	        await achievement.save();
+        }
+
+        if(!achievement.users.includes(user._id)){
+            achievement.users.push(user._id);
+            await achievement.save();
         }
         
         return res.sendStatus(200);
@@ -276,18 +313,28 @@ exports.addEventToUser = async function (req, res, next) {
             }); 
         }
 
+        if(event.type == 'cvreq'){
+            if(user.cv == undefined || user.cv == null)
+                return next({
+                    status: 400,
+                    message: "CV must be set to attend this event"
+                });
+        }
+
         if(event.isFull()){
             return next({
                 status: 400,
                 message: "Event is full"
             });
-        }
+        } 
 
         if(!user.events.includes(event._id)){
             user.events.push(event._id);
-            event.users.push(user._id);
-
             await user.save();
+        }
+
+        if(!event.users.includes(user._id)){
+            event.users.push(user._id);
             await event.save();
         }
 

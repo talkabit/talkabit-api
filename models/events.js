@@ -8,7 +8,7 @@ const eventsSchema = new mongoose.Schema(
         },       
         type: {
             type: String,
-            enum: ['workshop', 'other'],
+            enum: ['workshop', 'cvreq', 'other'],
             required: true
         },
         name: {

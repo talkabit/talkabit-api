@@ -2,7 +2,7 @@ require("dotenv");
 const db = require("../models");
 const jwt = require("jsonwebtoken");
 
-exports.loginRequired = function (req, res, next) {
+exports.loginRequired = async function (req, res, next) {
     try {
         if (req.headers.authorization == undefined)
             return next({
@@ -10,22 +10,32 @@ exports.loginRequired = function (req, res, next) {
                 message: "Authentication token required"
             });
 
-        const token = req.headers.authorization;
+        const token = req.headers.authorization.split(' ')[1];
         jwt.verify(token, process.env.SECRET_KEY, async function (err, decoded) {
             if (decoded) {
-                let user = await db.Users.findOne({
-                    email: decoded.email,
-                    uuid: decoded.uuid
-                });
-                if (user) {
+                
+                if(!decoded.admin){
+                    const user = await db.Users.findOne({
+                        email: decoded.email,
+                        uuid: decoded.uuid
+                    });
+
+                    if (!user) {
+                        return next({
+                            status: 404,
+                            message: "Invalid authentication token"
+                        });
+                    }
+
+                    user.admin = false;
                     req.user = user;
                     return next();
-                } else {
-                    return next({
-                        status: 404,
-                        message: "Invalid authentication token"
-                    });
                 }
+                else{
+                    req.user = decoded;
+                    return next();
+                }
+
             }
             else {
                 return next({
@@ -51,12 +61,11 @@ exports.adminLoginRequired = async function (req, res, next) {
                 message: "Authentication token required"
             });
 
-        const token = req.headers.authorization;
+        const token = req.headers.authorization.split(' ')[1];
         jwt.verify(token, process.env.SECRET_KEY, function (err, decoded) {
             if (decoded
                 && decoded.username == process.env.ADMIN_USERNAME
                 && decoded.admin) {
-                console.log("DECODED " + decoded);
                 req.user = decoded;
                 return next();
             }
@@ -80,6 +89,7 @@ exports.adminLoginRequired = async function (req, res, next) {
 
 exports.ensureSelfOrAdmin = async function (req, res, next) {
 
+    console.log(req.user);
     // Check if request author non-admin is accessing his details
     if (!req.user.admin) {
         const author = await db.Users.findOne({
