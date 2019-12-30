@@ -68,7 +68,7 @@ exports.registerUser = async function (req, res, next) {
 
         const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
         user.password = hashedPassword;
-        QRCode.toString(user.uuid, (err, string) => {
+        QRCode.toString('https://talkabit.org/pages/cv?uuid=' + user.uuid, (err, string) => {
             if (err) throw err
             user.qr = string;
             user.save();
