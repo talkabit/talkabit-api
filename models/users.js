@@ -43,6 +43,13 @@ const userSchema = new mongoose.Schema(
 	    	type: String,
 	    	required: false
 	    },
+	    scanned: {
+	        type: [{
+	            type: mongoose.Schema.Types.ObjectId,
+	            ref: 'Users'
+	        }],
+	        default: []
+	    },
 	    banned: {
 	    	type: Boolean,
 	    	default: false

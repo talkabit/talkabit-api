@@ -238,6 +238,41 @@ exports.updateUser = async function (req, res, next) {
     return res.status(200).json(user);
 }
 
+exports.addScannedUser = async function (req, res, next) {
+
+    try{
+
+        const scannedUser = await db.Users.findOne({
+            uuid: req.body.scannedUserUuid
+        });
+
+        const user = await db.Users.findOne({
+            uuid: req.params.userUuid
+        });
+
+        if(user == undefined || scannedUser == undefined){
+            return next({
+                status: 400,
+                message: "Invalid arguments"
+            }); 
+        }
+
+        if(!user.scanned.includes(scannedUser._id)
+            && user.uuid != scannedUser.uuid){
+            user.scanned.push(scannedUser._id);
+            await user.save();
+        }
+        
+        return res.sendStatus(200);
+    }
+    catch(err){
+        return next({
+            status: 500,
+            message: "Error registering scan"
+        }); 
+    }
+}
+
 exports.addAchievementToUser = async function (req, res, next) {
 
     try{
@@ -255,7 +290,7 @@ exports.addAchievementToUser = async function (req, res, next) {
         }
         catch(e){
             return next({
-                status: 401,
+                status: 400,
                 message: "Invalid achievement id"
             }); 
         }
@@ -270,7 +305,7 @@ exports.addAchievementToUser = async function (req, res, next) {
 
         if(user == undefined || achievement == undefined){
             return next({
-                status: 401,
+                status: 400,
                 message: "Invalid arguments"
             }); 
         }
@@ -342,5 +377,45 @@ exports.addEventToUser = async function (req, res, next) {
     }
     catch(err){
         console.log(err);
+        return next({
+            status: 500,
+            message: "Error adding event"
+        }); 
+    }
+}
+
+
+exports.removeEventFromUser = async function (req, res, next) {
+
+    try{
+        const user = await db.Users.findOne({
+            uuid: req.params.userUuid
+        });
+
+        const event = await db.Events.findOne({
+            uuid: req.body.eventUuid
+        });
+
+        if(user == undefined || event == undefined){
+            return next({
+                status: 400,
+                message: "Invalid arguments"
+            }); 
+        }
+
+        user.events = user.events.filter( e => !e._id.equals(event._id) );
+        await user.save();
+
+        event.users = event.users.filter( u => !u._id.equals(user._id) );
+        await event.save();
+
+        return res.sendStatus(200);
+    }
+    catch(err){
+        console.log(err);
+        return next({
+            status: 500,
+            message: "Error removing event"
+        }); 
     }
 }

@@ -68,7 +68,7 @@ module.exports = {
 			})
 	},
 
-	addEvent: {
+	addOrRemoveEvent: {
 		params: Joi.object({
 			userUuid: Joi.string().guid({
 			    version: [
@@ -78,6 +78,23 @@ module.exports = {
 		}),
 		body: Joi.object({
 			eventUuid: Joi.string().guid({
+			    version: [
+			        'uuidv1'
+			    ]
+			}).required()
+		})
+	},
+
+	addScanned: {
+		params: Joi.object({
+			userUuid: Joi.string().guid({
+			    version: [
+			        'uuidv1'
+			    ]
+			}).required()
+		}),
+		body: Joi.object({
+			scannedUserUuid: Joi.string().guid({
 			    version: [
 			        'uuidv1'
 			    ]

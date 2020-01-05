@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const validator = require('express-joi-validation').createValidator({});
-const { createUser, registerUser, loginUser, loginAdmin, updateUser, getUser, getUsers, addAchievementToUser, addEventToUser } = require("../controllers/users");
+const { createUser, registerUser, loginUser, loginAdmin, updateUser, getUser, getUsers, addAchievementToUser, addEventToUser, removeEventFromUser, addScannedUser } = require("../controllers/users");
 const { loginRequired, adminLoginRequired, ensureSelfOrAdmin } = require("../middleware/auth");
 const usersValidation = require('./validation/users');
 
@@ -63,11 +63,29 @@ router.post(
 
 router.post(
 	"/:userUuid/events",
-	validator.params(usersValidation.addEvent.params),
-	validator.body(usersValidation.addEvent.body),
+	validator.params(usersValidation.addOrRemoveEvent.params),
+	validator.body(usersValidation.addOrRemoveEvent.body),
 	loginRequired,
 	ensureSelfOrAdmin,
 	addEventToUser
+);
+
+router.delete(
+	"/:userUuid/events",
+	validator.params(usersValidation.addOrRemoveEvent.params),
+	validator.body(usersValidation.addOrRemoveEvent.body),
+	loginRequired,
+	ensureSelfOrAdmin,
+	removeEventFromUser
+);
+
+router.post(
+	"/:userUuid/scanned",
+	validator.params(usersValidation.addScanned.params),
+	validator.body(usersValidation.addScanned.body),
+	loginRequired,
+	ensureSelfOrAdmin,
+	addScannedUser
 );
 
 module.exports = router;
