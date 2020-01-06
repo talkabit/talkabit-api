@@ -12,7 +12,7 @@ exports.getUser = (req, res, next) => {
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="dropdown-item" id="prof-button" href="https://talkabit.org/pages/profile">Profile</a>
               <a class="dropdown-item" id="events-button" href="https://talkabit.org/pages/events">Events</a>
-              <a class="dropdown-item" id="events-button" href="https://talkabit.org/pages/achievements">Achivements</a>
+              <a class="dropdown-item" id="achievements-button" href="https://talkabit.org/pages/achievements">Achivements</a>
               <a class="dropdown-item" id="logout-button" href="#">Logout</a>
           </div>
         </li>`
