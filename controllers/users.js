@@ -277,27 +277,8 @@ exports.addAchievementToUser = async function (req, res, next) {
 
     try{
 
-        let decryptedAchievementUuid = null;
-
-        try{
-            const tabKey = await db.Keys.findOne();
-
-            const key = new NodeRSA(tabKey.public);
-            key.setOptions({
-                encryptionScheme: 'pkcs1',
-            });
-            const buf = Buffer.from(req.body.achievementUuid, 'hex');
-            decryptedAchievementUuid = key.decryptPublic(buf).toString();
-        }
-        catch(e){
-            return next({
-                status: 400,
-                message: "Invalid achievement id"
-            }); 
-        }
-
         const achievement = await db.Achievements.findOne({
-            uuid: decryptedAchievementUuid
+            uuid: req.body.achievementUuid
         });
 
         const user = await db.Users.findOne({
@@ -310,6 +291,12 @@ exports.addAchievementToUser = async function (req, res, next) {
                 message: "Invalid arguments"
             }); 
         }
+
+        if(!achievement.available)
+            return next({
+                status: 409,
+                message: "Achievement is currently not available"
+            });
 
         if(!user.achievements.includes(achievement._id)){
             user.achievements.push(achievement._id);

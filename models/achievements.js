@@ -33,6 +33,11 @@ const achievementsSchema = new mongoose.Schema(
         qr: {
             type: String,
             required: false
+        },
+        available: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
     {
@@ -41,24 +46,9 @@ const achievementsSchema = new mongoose.Schema(
 );
 
 achievementsSchema.pre("save", async function(next){
-    const encUuid = await encrypt(this.uuid);
-    console.log(encUuid);
-    const content = `http://talkabit.org/achievement?id=${encUuid}`;
-    let imgSrc = await QRCode.toDataURL(content);
-    this.qr = await QRCode.toString(content);
+    this.qr = await QRCode.toString(`http://talkabit.org/achievement?id=${this.uuid}`);
     next();
 });
-
-async function encrypt(msg){
-    const tabKey = await db.Keys.findOne();
-
-    const key = new NodeRSA(tabKey.private);
-    key.setOptions({
-        encryptionScheme: 'pkcs1',
-    });
-    const encMsg = key.encryptPrivate(msg, 'hex');
-    return encMsg;
-}
 
 const Achievements = mongoose.model("Achievements", achievementsSchema);
 
