@@ -1,7 +1,7 @@
 module.exports = {
 	usr: {
-		userFilter:  "-__v -_id -password -banned -scanned",
-		achievementFilter: "-__v -_id -createdAt -updatedAt -users",
+		userFilter:  "-__v -_id -qr -cv -password -banned -scanned",
+		achievementFilter: "-__v -_id -createdAt -updatedAt -users -qr",
 		eventFilter: "-__v -_id -createdAt -updatedAt -users",
 	},
 

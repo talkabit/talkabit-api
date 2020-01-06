@@ -7,7 +7,7 @@ const achievementsValidation = require('./validation/achievements');
 
 router.get(
 	"/",
-	adminLoginRequired,
+	loginRequired,
 	getAchievements
 );
 

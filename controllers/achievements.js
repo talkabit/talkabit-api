@@ -25,13 +25,15 @@ exports.createAchievement = async function (req, res, next) {
 }
 
 exports.getAchievements = async function (req, res, next) {
+    const selectFilter = req.user.admin ? "adm" : "usr";
+
     const achievements = await db.Achievements.find()
             .sort({ createdAt: "desc" })
             .populate({
                 path: 'users',
-                select: filters.adm.userFilter
+                select: filters[selectFilter].userFilter
             })
-            .select(filters.adm.achievementFilter)
+            .select(filters[selectFilter].achievementFilter)
 
     return res.status(200).json(achievements);
 }

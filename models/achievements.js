@@ -19,6 +19,10 @@ const achievementsSchema = new mongoose.Schema(
             required: false,
             unique: true
         },
+        description: {
+            type: String,
+            required: false,
+        },
         users: {
             type: [{
                 type: mongoose.Schema.Types.ObjectId,
@@ -52,9 +56,7 @@ async function encrypt(msg){
     key.setOptions({
         encryptionScheme: 'pkcs1',
     });
-    const encMsg = key.encryptPrivate(msg, 'base64');
-    console.log(msg.length+" "+encMsg.length);
-    console.log(encMsg);
+    const encMsg = key.encryptPrivate(msg, 'hex');
     return encMsg;
 }
 
