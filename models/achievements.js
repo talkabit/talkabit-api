@@ -45,7 +45,7 @@ achievementsSchema.pre("save", async function(next){
     console.log(encUuid);
     const content = `http://talkabit.org/achievement?id=${encUuid}`;
     let imgSrc = await QRCode.toDataURL(content);
-    this.qr = imgSrc;
+    this.qr = await QRCode.toString(content);
     next();
 });
 

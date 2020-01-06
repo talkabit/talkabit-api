@@ -68,8 +68,11 @@ exports.registerUser = async function (req, res, next) {
 
         const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
         user.password = hashedPassword;
-        user.qr = await QRCode.toDataURL(`https://talkabit.org/pages/cv?uuid=${user.uuid}`);
-        user.save();
+        QRCode.toString('https://talkabit.org/pages/cv?uuid=' + user.uuid, (err, string) => {
+            if (err) throw err
+            user.qr = string;
+            user.save();
+          })
 
         const { uuid, email } = user;
         const token = jwt.sign({
@@ -284,7 +287,6 @@ exports.addAchievementToUser = async function (req, res, next) {
                 encryptionScheme: 'pkcs1',
             });
             const buf = Buffer.from(req.body.achievementUuid, 'hex');
-            console.log(buf);
             decryptedAchievementUuid = key.decryptPublic(buf).toString();
         }
         catch(e){
