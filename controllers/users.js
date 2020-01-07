@@ -6,7 +6,7 @@ const hash = require('hash.js')
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 const jwtOptions = {
-    expiresIn: "1h"
+    expiresIn: "1d"
 }
 const ms = require('ms');
 const QRCode = require('qrcode');
@@ -121,7 +121,7 @@ exports.loginUser = async function (req, res, next) {
 
             const token = jwt.sign({
                 uuid, email, admin: false
-            }, process.env.SECRET_KEY);
+            }, process.env.SECRET_KEY, jwtOptions);
 
             const expiresAt = new Date(Date.now()+ms(jwtOptions.expiresIn));
 
@@ -157,7 +157,7 @@ exports.loginAdmin = async function (req, res, next) {
             const token = jwt.sign({
                 username: process.env.ADMIN_USERNAME, 
                 admin: true
-            }, process.env.SECRET_KEY);
+            }, process.env.SECRET_KEY, jwtOptions);
 
             const expiresAt = new Date(Date.now()+ms(jwtOptions.expiresIn));
 
